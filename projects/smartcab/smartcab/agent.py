@@ -8,7 +8,7 @@ class LearningAgent(Agent):
     """ An agent that learns to drive in the Smartcab world.
         This is the object you will be modifying. """
 
-    def __init__(self, env, learning=False, epsilon=1.0, alpha=0.25):
+    def __init__(self, env, learning=False, epsilon=1.0, alpha=0.5):
         super(LearningAgent, self).__init__(env)     # Set the agent in the evironment
         self.planner = RoutePlanner(self.env, self)  # Create a route planner
         self.valid_actions = self.env.valid_actions  # The set of valid actions
@@ -123,14 +123,16 @@ class LearningAgent(Agent):
         if self.learning:
           if random.random()<self.epsilon:
             action=random.choice(self.valid_actions)
-          elif min(self.Q[state].values())==max(self.Q[state].values()):   #here if nothing has been learned for this state
-            action=random.choice(self.valid_actions)                       #random choose an action
+          #elif min(self.Q[state].values())==max(self.Q[state].values()):   #here if nothing has been learned for this state
+          #  action=random.choice(self.valid_actions)                       #random choose an action
           else:
             maxQ = self.get_maxQ(state)
+            keylist=[]
             for index in range(len(self.valid_actions)):
               key=self.valid_actions[index]
               if self.Q[state][key]== maxQ:
-                action = key
+                keylist.append(key)
+            action = random.choice(keylist)
         else:
           action=random.choice(self.valid_actions)
 
@@ -148,7 +150,7 @@ class LearningAgent(Agent):
         # When learning, implement the value iteration update rule
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
         if self.learning:
-          self.Q[state][action]=(1-self.alpha)*self.Q[state][action]+self.alpha*(reward+self.get_maxQ(self.state))
+          self.Q[state][action]=(1-self.alpha)*self.Q[state][action]+self.alpha*(reward)
         else:
           pass
 
@@ -210,7 +212,7 @@ def run():
     # Flags:
     #   tolerance  - epsilon tolerance before beginning testing, default is 0.05
     #   n_test     - discrete number of testing trials to perform, default is 0
-    sim.run(n_test=10, tolerance=0.01)
+    sim.run(n_test=20, tolerance=0.01)
 
 
 if __name__ == '__main__':
